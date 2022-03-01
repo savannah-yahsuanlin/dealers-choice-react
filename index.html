@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Zoo</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!--- script----->
+		<script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+		<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.0/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<!---style----->
+		<link rel="stylesheet" href="./style.css">
+	</head>
+	<body>
+		<div id='root'></div>
+		<script type='text/babel'>
+			const Animal = (props) => {
+				const {animal} = props
+				return (
+					<li>{animal.name}</li>
+				)
+			}
+			const Zoo = (props) => {
+				const {zoo, onDelete} = props
+				return (
+					<li key={zoo.id}>
+						{zoo.name}
+						<button onClick={()=> onDelete(zoo)}>X</button>
+						<ul>
+							{zoo.animals.map(animal => {
+								return (
+									<Animal animal={animal}/>
+								)
+							})}
+						</ul>
+					</li>
+				)
+			}
+			class App extends React.Component {
+				constructor() {
+					super()
+
+					this.state = {
+						zoos: [],
+					}
+					this.onDelete = this.onDelete.bind(this)
+					this.onSave = this.onSave.bind(this)
+				}
+
+				onDelete(zoo) {
+  	 	 			const zoos = this.state.zoos.filter( _zoo => _zoo.id !== zoo.id);
+					this.setState({ zoos });
+					axios.delete(`/api/zoos/${zoo.id}`)
+					.then( ()=> console.log('deleted'));
+				}
+
+				onSave(zoo) {
+					axios.post('/api/zoos', zoo)
+					.then(response => {
+						const zoo = response.data
+						const zoos = this.state.zoos.concat([zoo])
+						this.setState({zoos})
+					})
+				}
+
+				async componentDidMount() {
+					const zoos = (await axios.get('/api/zoos')).data
+					this.setState({zoos})
+				}
+				render() {
+					const { onDelete, onSave } = this
+					return (
+						<div>
+							<h1> World's famous Zoos</h1>
+							<form>
+								<input value={this.state.name} name="name" placeholder="write down your favorite zoo" />
+								<button onClick={()=>{this.onSave}}>Save</button>
+							</form>
+							<div>
+								{
+									this.state.zoos.map(zoo => {
+										return (
+											<Zoo zoo={zoo} onDelete={ onDelete } onSave={ onSave }/>
+										)
+									})
+								}
+							</div>
+						</div>
+					)
+				}
+			}
+
+			const root = document.querySelector('#root');
+			ReactDOM.render(<App />, root);
+		</script>
+	</body>
+</html>

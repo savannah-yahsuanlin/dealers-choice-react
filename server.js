@@ -20,7 +20,7 @@ app.get('/api/zoos', async(req, res, next) => {
 app.post('/api/zoos', async(req, res, next) => {
 	try {
 		await Zoos.create(req.body)
-		res.redirect('/')
+		res.sendStatus(201)
 	} catch (error) {
 		next(error)
 	}
@@ -30,7 +30,7 @@ app.delete('/api/zoos/:id', async(req, res, next) => {
 	try {
 		const zoo = await Zoos.findByPk(req.params.id)
 		await zoo.destroy()
-		res.redirect('/')
+		res.sendStatus(204)
 	} catch (error) {
 		next(error)
 	}

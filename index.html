@@ -46,7 +46,6 @@
 						zoos: [],
 					}
 					this.onDelete = this.onDelete.bind(this)
-					this.onSave = this.onSave.bind(this)
 				}
 
 				onDelete(zoo) {
@@ -54,15 +53,6 @@
 					this.setState({ zoos });
 					axios.delete(`/api/zoos/${zoo.id}`)
 					.then( ()=> console.log('deleted'));
-				}
-
-				onSave(zoo) {
-					axios.post('/api/zoos', zoo)
-					.then(response => {
-						const zoo = response.data
-						const zoos = this.state.zoos.concat([zoo])
-						this.setState({zoos})
-					})
 				}
 
 				async componentDidMount() {
@@ -74,9 +64,9 @@
 					return (
 						<div>
 							<h1> World's famous Zoos</h1>
-							<form>
+							<form method="POST">
 								<input value={this.state.name} name="name" placeholder="write down your favorite zoo" />
-								<button onClick={()=>{this.onSave}}>Save</button>
+								<button>Save</button>
 							</form>
 							<div>
 								{
